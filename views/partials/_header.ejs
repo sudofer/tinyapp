@@ -16,6 +16,18 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        <form class="nav-item nav-link" action="/users" method="POST">
+          <div class="nav-item nav-link">
+            <label for="Name">Enter Name:</label>
+            <input
+              class="nav-item nav-link"
+              type="text"
+              name="username"
+              placeholder="Your Name Here"
+            />
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
       </div>
     </div>
   </nav>
