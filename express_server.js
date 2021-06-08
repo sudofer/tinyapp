@@ -58,12 +58,17 @@ app.get("/urls/:shortURL", (req, res) => {
   };
   res.render("urls_show", templateVars);
 });
-
+//redirecting to original url
 app.get("/u/:shortURL", (req, res) => {
-  // const longURL = ...
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
   res.redirect(longURL);
+});
+// deleting and refreshing /urls
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL;
+  delete urlDatabase[shortURL];
+  res.redirect("/urls");
 });
 
 function generateRandomString(length) {
