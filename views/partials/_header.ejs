@@ -14,20 +14,26 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
+        <% if (username) { %>
+        <span class="nav-link active"><%= username %></span>
+        <% } %>
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <form class="nav-item nav-link" action="/users" method="POST">
-          <div class="nav-item nav-link">
-            <label for="Name">Enter Name:</label>
-            <input
-              class="nav-item nav-link"
-              type="text"
-              name="username"
-              placeholder="Your Name Here"
-            />
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
+        <% if (username){ %>
+        <form class="form-inline" action="/logout" method="POST">
+          <button type="submit" class="btn btn-primary">LOGOUT</button>
         </form>
+        <%} else { %>
+        <form class="form-inline" action="/login" method="POST">
+          <input
+            class="form-control mr-sm-2"
+            type="text"
+            name="username"
+            placeholder="Your Name Here"
+          />
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <%}%>
       </div>
     </div>
   </nav>
