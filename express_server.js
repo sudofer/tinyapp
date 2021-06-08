@@ -48,7 +48,7 @@ app.post("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
-
+//shows us short/long url and offers link to /u/ which redirects
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
@@ -57,6 +57,14 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL,
   };
   res.render("urls_show", templateVars);
+});
+
+app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+
+  res.redirect(`/urls/${shortURL}`);
 });
 //redirecting to original url
 app.get("/u/:shortURL", (req, res) => {
