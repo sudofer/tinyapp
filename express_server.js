@@ -95,6 +95,10 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
+app.get("/register", (req, res) => {
+  res.render("form_registration");
+});
+
 function generateRandomString(length) {
   var result = [];
   var characters =
