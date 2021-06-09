@@ -18,13 +18,13 @@
     <li class="nav-item">
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <% if (username) { %> <% } %>
+        <% if (user) { %> <% } %>
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <% if (username){ %>
+        <% if (user){ %>
           <form style="margin-left: 100px" class="form-inline" action="/logout" method="POST">
             <div class = "nav justify-content-end">
-              <span class="nav-link active"><%=`Logged In As: ${username}` %></span>
+              <span class="nav-link active"><%=`Logged In As: ${user.email}` %></span>
               <button type="submit" class="btn btn-primary">LOGOUT</button>
             </div>
             </form>

@@ -12,6 +12,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -34,8 +47,9 @@ app.get("/fetch", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  const user_id = req.cookies["user_id"];
   const templateVars = {
-    username: req.cookies["username"],
+    user: users[user_id],
     urls: urlDatabase,
   };
   res.render("urls_index", templateVars);
@@ -50,14 +64,17 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new", { username: req.cookies["username"] });
+  const user = users[req.cookies.user_id];
+
+  res.render("urls_new", { user });
 });
 //shows us short/long url and offers link to /u/ which redirects
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
+  const user = users[req.cookies.user_id];
   const templateVars = {
-    username: req.cookies["username"],
+    user,
     shortURL,
     longURL,
   };
@@ -84,8 +101,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  console.log(req.cookies);
+  console.log(req.bodies.user_id);
   console.log(req.body);
+  const user = users[req.cookies.user_id];
   res.cookie("username", req.body.username);
   res.redirect("/urls");
 });
@@ -97,6 +115,20 @@ app.post("/logout", (req, res) => {
 
 app.get("/register", (req, res) => {
   res.render("form_registration");
+});
+
+app.post("/register", (req, res) => {
+  const signUp = req.body;
+  // CHECK FOR VALID INPUT
+  if (emailExists(signUp.email, users)) {
+    res.status(400).send("Something went wrong!");
+  } else {
+    const ID = generateRandomString(6);
+    users[ID] = { id: ID, email: signUp.email, password: signUp.password };
+    console.log("users", users);
+    res.cookie("user_id", ID);
+    res.redirect("/urls");
+  }
 });
 
 function generateRandomString(length) {
@@ -115,3 +147,11 @@ function generateRandomString(length) {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+const emailExists = (email, users) => {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return users[user];
+    }
+  }
+};
