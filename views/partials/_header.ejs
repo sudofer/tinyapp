@@ -29,16 +29,11 @@
             </div>
             </form>
         <%} else { %>
-
-        <form class="form-inline" action="/login" method="POST">
-          <input
-            class="form-control mr-sm-2"
-            type="text"
-            name="username"
-            placeholder="Username"
-            aria-label="Search"
-          />
-          <button type="submit" class="btn btn-primary">Submit</button>
+          <a href="/register">
+            <button type="submit" style="margin-left: 300px;" class="btn btn-primary">REGISTER</button>
+          </a>
+        <form class="form-inline" action="/login" method="GET">
+          <button type="submit" style="margin-left: 20px;" class="btn btn-primary">LOGIN</button>
         </form>
         <%}%>
       </div>
