@@ -120,8 +120,11 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const signUp = req.body;
   // CHECK FOR VALID INPUT
+  if (signUp.email === "" || signUp.password === "") {
+    return res.status(400).send("Please provide valid credentials.");
+  }
   if (emailExists(signUp.email, users)) {
-    res.status(400).send("Something went wrong!");
+    return res.status(400).send("Something went wrong!");
   } else {
     const ID = generateRandomString(6);
     users[ID] = { id: ID, email: signUp.email, password: signUp.password };
