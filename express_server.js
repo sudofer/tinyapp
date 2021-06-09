@@ -101,15 +101,26 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  console.log(req.bodies.user_id);
-  console.log(req.body);
-  const user = users[req.cookies.user_id];
-  res.cookie("username", req.body.username);
+  const body = req.body;
+
+  const user = emailExists(body.email, users);
+  if (!user) {
+    return res.status(400).send("User not found");
+  }
+  if (user.password !== body.password) {
+    return res.status(400).send("Invalid Login");
+  }
+  console.log(`--------`, user);
+  res.cookie("user_id", user.id);
   res.redirect("/urls");
 });
 
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
@@ -125,13 +136,12 @@ app.post("/register", (req, res) => {
   }
   if (emailExists(signUp.email, users)) {
     return res.status(400).send("Something went wrong!");
-  } else {
-    const ID = generateRandomString(6);
-    users[ID] = { id: ID, email: signUp.email, password: signUp.password };
-    console.log("users", users);
-    res.cookie("user_id", ID);
-    res.redirect("/urls");
   }
+  const ID = generateRandomString(6);
+  users[ID] = { id: ID, email: signUp.email, password: signUp.password };
+  console.log("users", users);
+  res.cookie("user_id", ID);
+  res.redirect("/urls");
 });
 
 function generateRandomString(length) {
