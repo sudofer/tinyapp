@@ -24,31 +24,26 @@ const users = {
     password: "dishwasher-funk",
   },
 };
-
+//ROOT REDIRECTS TO HOME
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  if (req.cookie) {
+    return res.redirect("/urls");
+  }
+  res.redirect("/login");
 });
 
-app.get("/urls.json", (req, res) => {
+//POTENTIAL API
+/* app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
-});
+}); */
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-app.get("/set", (req, res) => {
-  const a = 1;
-  res.send(`a = ${a}`);
-});
-
-app.get("/fetch", (req, res) => {
-  res.send(`a = ${a}`);
-});
-
+// MAIN PAGE
 app.get("/urls", (req, res) => {
   const user_id = req.cookies["user_id"];
-
   const templateVars = {
     user: users[user_id],
     urls: urlForUser(user_id),
@@ -57,16 +52,19 @@ app.get("/urls", (req, res) => {
   console.dir(templateVars);
 });
 
+// NEW URL SUBMITTION
 app.post("/urls", (req, res) => {
-  // Log the POST request body to the console
   const user_id = req.cookies.user_id;
   const shortURL = generateRandomString(6);
-  const longURL = req.body.longURL;
+  let longURL = req.body.longURL;
+  if (!longURL.includes("http://")) {
+    longURL = "http://" + longURL;
+  }
   urlDatabase[shortURL] = { longURL, user_id };
   console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
-
+//LINK TO URL CREATOR
 app.get("/urls/new", (req, res) => {
   const user = req.cookies.user_id;
 
@@ -76,10 +74,10 @@ app.get("/urls/new", (req, res) => {
 
   res.render("urls_new", { user });
 });
-//shows us short/long url and offers link to /u/ which redirects
+//URL'S PAGE, LINK TO REDIRECT
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   const user = users[req.cookies.user_id];
   const templateVars = {
     user,
@@ -88,37 +86,40 @@ app.get("/urls/:shortURL", (req, res) => {
   };
   res.render("urls_show", templateVars);
 });
-
+//SET OR UPDATE URL
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const user = users[req.cookies.user_id];
   console.log("USER", user);
 
-  const longURL = req.body.longURL;
+  let longURL = req.body.longURL;
+  if (!longURL.includes("http://")) {
+    longURL = "http://" + longURL;
+  }
   urlDatabase[shortURL].longURL = longURL;
   console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
-//redirecting to original url
+//REDIRECTING TO LONG URL
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
+  console.log(shortURL, "<- short url");
+  console.log(urlDatabase);
   res.redirect(longURL);
 });
-// deleting and refreshing /urls
+// DELETING
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
-  console.log("urlDatabase -------", urlDatabase);
-  console.log("shortURL -------", shortURL);
   if (urlDatabase[shortURL].user_id === req.cookies.user_id) {
     delete urlDatabase[shortURL];
   }
   res.redirect("/urls");
 });
-
+//LOGIN
 app.post("/login", (req, res) => {
   const body = req.body;
-
+  //CHECK FOR VALID INPUT
   const user = emailExists(body.email, users);
   if (!user) {
     return res.status(400).send("User not found");
@@ -134,12 +135,12 @@ app.post("/login", (req, res) => {
 app.get("/login", (req, res) => {
   res.render("login");
 });
-
+//LOGOUT
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/urls");
 });
-
+//REGISTER
 app.get("/register", (req, res) => {
   res.render("form_registration");
 });
@@ -160,10 +161,7 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-// app.post("/update", (req, res) => {
-//   console.log(req.body);
-// });
-
+// HELPER FUNCTIONS
 function generateRandomString(length) {
   var result = [];
   var characters =
@@ -185,10 +183,6 @@ const emailExists = (email, users) => {
   }
 };
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
-
 const urlForUser = (id) => {
   let total = {};
   for (let key in urlDatabase) {
@@ -198,3 +192,8 @@ const urlForUser = (id) => {
   }
   return total;
 };
+
+//LISTENER
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});

@@ -1,27 +1,29 @@
-<form action="/login" method="POST">
-  <div class="container">
-    <h1>Login</h1>
-    <p>Please log in!</p>
-    <hr />
+<link
+  rel="stylesheet"
+  href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+  integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+  crossorigin="anonymous"
+/>
 
-    <label for="email"><b>Email</b></label>
-    <input
-      type="email"
-      placeholder="Enter Email"
-      name="email"
-      id="email"
-      required
-    />
-
-    <label for="psw"><b>Password</b></label>
-    <input
-      type="password"
-      placeholder="Enter Password"
-      name="password"
-      id="psw"
-      required
-    />
-
-    <button type="submit" class="registerbtn">Login</button>
-  </div>
-</form>
+<main style="margin: 1em">
+  <h3 class="text-center">Login</h3>
+  <form action="/login" method="POST">
+    <div class="form-group offset-md-5">
+      <label for="email" class="col-form-label">Email</label>
+      <input class="form-control col-4" type="email" name="email" id="email" />
+    </div>
+    <div class="form-group offset-md-5">
+      <label for="password" class="col-form-label">Password</label>
+      <input
+        class="form-control col-4"
+        type="password"
+        name="password"
+        id="password"
+      />
+    </div>
+    <div class="form-group offset-md-5">
+      <input class="btn btn-primary" type="submit" value="Register" />
+    </div>
+    <p>Don't have an account? Register <a href="/register">here!</a></p>
+  </form>
+</main>
