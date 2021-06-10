@@ -6,6 +6,8 @@ const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", user_id: "aJ48lW" },
@@ -16,12 +18,12 @@ const users = {
   userRandomID: {
     id: "aJ48lW",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+    password: bcrypt.hashSync("purple-monkey-dinosaur", saltRounds),
   },
   user2RandomID: {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk",
+    password: bcrypt.hashSync("dishwasher-funk", saltRounds),
   },
 };
 //ROOT REDIRECTS TO HOME
@@ -124,7 +126,8 @@ app.post("/login", (req, res) => {
   if (!user) {
     return res.status(400).send("User not found");
   }
-  if (user.password !== body.password) {
+
+  if (!bcrypt.compareSync(body.password, user.password)) {
     return res.status(400).send("Invalid Login");
   }
   console.log(`--------`, user);
@@ -155,7 +158,8 @@ app.post("/register", (req, res) => {
     return res.status(403).send("Something went wrong!");
   }
   const ID = generateRandomString(6);
-  users[ID] = { id: ID, email: signUp.email, password: signUp.password };
+  let password = bcrypt.hashSync(signUp.password, saltRounds);
+  users[ID] = { id: ID, email: signUp.email, password };
   console.log("users", users);
   res.cookie("user_id", ID);
   res.redirect("/urls");
