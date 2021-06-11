@@ -8,11 +8,11 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 app.use(cookieSession({ name: "session", keys: ["key1", "key2"] }));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
-const bcrypt = require("bcrypt");
-const saltRounds = 10;
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", user_id: "aJ48lW" },
@@ -73,8 +73,7 @@ app.get("/urls/new", (req, res) => {
   if (!user) {
     return res.redirect("/login");
   }
-
-  res.render("urls_new", { user });
+  res.render("urls_new", {user: users[user]});
 });
 
 //URL'S PAGE, LINK TO REDIRECT
@@ -95,7 +94,8 @@ app.get("/urls/:shortURL", (req, res) => {
   };
 
   if (user.id !== author_id) {
-    return res.render("urls_index", templateVars);
+
+    return res.render("error", {error: 'You do not own this url'});
   }
 
   const templateVars2 = {
@@ -110,8 +110,6 @@ app.get("/urls/:shortURL", (req, res) => {
 //SET OR UPDATE URL
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const user = users[req.session.user_id];
-
   let longURL = req.body.longURL;
   if (!longURL.includes("http://")) {
     longURL = "http://" + longURL;
@@ -123,22 +121,22 @@ app.post("/urls/:shortURL", (req, res) => {
 
 //REDIRECTING TO LONG URL
 app.get("/u/:shortURL", (req, res) => {
-  if (!req.session.user_id) {
-    return res.redirect("/login");
-  }
+  
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL].longURL;
-  const author_id = urlDatabase[shortURL].user_id;
-  const templateVars = {
-    user: users[req.session.user_id],
-    urls: urlForUser(req.session.user_id, urlDatabase),
-  };
-
-  if (req.session.user_id !== author_id) {
-    return res.render("urls_index", templateVars);
+  
+  
+  if (urlDatabase[shortURL]){
+    const longURL = urlDatabase[shortURL].longURL;
+    res.redirect(longURL);  
   }
 
-  res.redirect(longURL);
+
+
+  else {
+
+
+    res.render("error", {error: 'Invalid shortURL'});
+  }
 });
 
 // DELETING
@@ -214,6 +212,12 @@ app.post("/register", (req, res) => {
   req.session.user_id = ID;
   res.redirect("/urls");
 });
+
+app.get('error', (req, res) => {
+  res.render('error');
+
+
+})
 
 //LISTENER
 app.listen(PORT, () => {
