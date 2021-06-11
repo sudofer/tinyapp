@@ -95,8 +95,6 @@ app.get("/urls/:shortURL", (req, res) => {
   };
 
   if (user.id !== author_id) {
-    console.log("userID:", user.id);
-    console.log("authorID", author_id);
     return res.render("urls_index", templateVars);
   }
 
