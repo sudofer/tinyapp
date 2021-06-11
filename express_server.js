@@ -86,12 +86,27 @@ app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
   const user = users[req.session.user_id];
+
+  const author_id = urlDatabase[shortURL].user_id;
+
   const templateVars = {
+    user: users[req.session.user_id],
+    urls: urlForUser(req.session.user_id, urlDatabase),
+  };
+
+  if (user.id !== author_id) {
+    console.log("userID:", user.id);
+    console.log("authorID", author_id);
+    return res.render("urls_index", templateVars);
+  }
+
+  const templateVars2 = {
     user,
     shortURL,
     longURL,
   };
-  res.render("urls_show", templateVars);
+
+  res.render("urls_show", templateVars2);
 });
 
 //SET OR UPDATE URL
@@ -110,8 +125,20 @@ app.post("/urls/:shortURL", (req, res) => {
 
 //REDIRECTING TO LONG URL
 app.get("/u/:shortURL", (req, res) => {
+  if (!req.session.user_id) {
+    return res.redirect("/login");
+  }
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
+  const author_id = urlDatabase[shortURL].user_id;
+  const templateVars = {
+    user: users[req.session.user_id],
+    urls: urlForUser(req.session.user_id, urlDatabase),
+  };
+
+  if (req.session.user_id !== author_id) {
+    return res.render("urls_index", templateVars);
+  }
 
   res.redirect(longURL);
 });
@@ -146,7 +173,11 @@ app.get("/login", (req, res) => {
   if (req.session.user_id) {
     return res.redirect("/urls");
   }
-  res.render("login");
+  const user_id = req.session.user_id;
+  const templateVars = {
+    user: users[user_id],
+  };
+  res.render("login", templateVars);
 });
 //LOGOUT
 app.post("/logout", (req, res) => {
@@ -159,7 +190,11 @@ app.get("/register", (req, res) => {
   if (req.session.user_id) {
     return res.redirect("/urls");
   }
-  res.render("form_registration");
+  const user_id = req.session.user_id;
+  const templateVars = {
+    user: users[user_id],
+  };
+  res.render("form_registration", templateVars);
 });
 
 app.post("/register", (req, res) => {
