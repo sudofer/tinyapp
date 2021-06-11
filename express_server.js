@@ -202,9 +202,11 @@ app.post("/register", (req, res) => {
   if (signUp.email === "" || signUp.password === "") {
     return res.status(403).send("Please provide valid credentials.");
   }
+  //ACCOUNT EXISTS
   if (getUserByEmail(signUp.email, users)) {
     return res.status(403).send("Something went wrong!");
   }
+  //ADD INTO DATABASE
   const ID = generateRandomString(6);
   let password = bcrypt.hashSync(signUp.password, saltRounds);
   users[ID] = { id: ID, email: signUp.email, password };
